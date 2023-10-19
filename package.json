@@ -9,8 +9,8 @@
   "author": "codermert", 
   "license": "MIT", 
   "dependencies": {
-    "axios": "^0.21.1", 
-    "cheerio": "^1.0.0",
+    "axios": "^1.5.1",
+    "cheerio": "^1.0.0-rc.12"
     "fs": "0.0.1"
   }
 }
