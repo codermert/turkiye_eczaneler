@@ -2,8 +2,17 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
 
-const illerJson = fs.readFileSync('iller.json', 'utf8');
-const illerList = JSON.parse(illerJson).iller;
+async function fetchIlIlceData() {
+  const ilIlceURL = 'https://raw.githubusercontent.com/codermert/turkiye_eczaneler/main/iller.json';
+
+  try {
+    const response = await axios.get(ilIlceURL);
+    return response.data.iller;
+  } catch (error) {
+    console.error('Veri getirilirken hata oluştu "iller.json":', error);
+    return [];
+  }
+}
 
 // Eczaneler verilerini tutmak için boş bir nesne oluştur
 const allEczaneler = {};
@@ -47,6 +56,8 @@ async function fetchEczaneData(il) {
 
 // Özel bir ilin eczane verilerini çekmek için işlev
 async function getEczaneler(il) {
+  const illerList = await fetchIlIlceData();
+
   if (illerList.includes(il)) {
     const eczaneList = await fetchEczaneData(il);
     return eczaneList;
