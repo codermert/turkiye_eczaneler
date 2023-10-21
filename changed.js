@@ -13,11 +13,13 @@ const extractIlceFromAddress = (address) => {
   }
 };
 
-// Adres bilgisini temizlemek için yardımcı bir işlev
-const cleanAddress = (address) => {
-  // İstenmeyen metinleri temizle
-  const cleaned = address.replace(/<[^>]*>/g, ''); // HTML etiketlerini kaldır
-  return cleaned.trim();
+// Adres ve ilçe bilgisini ayırmak için yardımcı bir işlev
+const splitAddressAndIlce = (eczaneInfoText) => {
+  const [eczaneAddress, eczaneIlce] = eczaneInfoText.split(' <div class="my-2">');
+  return {
+    address: eczaneAddress,
+    ilce: eczaneIlce,
+  };
 };
 
 async function fetchIlIlceData() {
@@ -50,14 +52,17 @@ async function fetchEczaneData(il) {
 
     $('div.row').each((index, element) => {
       const eczaneName = $(element).find('a.text-capitalize.font-weight-bold').text().trim();
-      const eczaneAddress = cleanAddress($(element).find('.text-capitalize:eq(1)').html()); // Temizlenmiş adresi al
+      const eczaneInfoDiv = $(element).find('.col-lg-6.text-center.text-lg-left.text-capitalize');
+      const eczaneInfoText = eczaneInfoDiv.text();
+      const { address, ilce } = splitAddressAndIlce(eczaneInfoText);
+
       const eczanePhone = $(element).find('a.text-dark').text().trim();
 
       const eczaneInfo = {
         name: eczaneName,
-        address: eczaneAddress,
+        address: cleanAddress(address),
         phone: eczanePhone,
-        ilce: extractIlceFromAddress(eczaneAddress), // İlçe bilgisini alır
+        ilce: eczaneIlce,
       };
 
       eczaneList.push(eczaneInfo);
@@ -69,6 +74,7 @@ async function fetchEczaneData(il) {
     return [];
   }
 }
+
 
 async function getEczaneler(il) {
   const illerList = await fetchIlIlceData();
@@ -119,18 +125,30 @@ async function getExcelVer(il) {
 
     // Filtre eklemek için autoFilter seçeneğini kullanın
     ws['!autofilter'] = { ref: "D1:D" + (eczaneList.length + 1) };
-    // İlk satırın stillerini ayarlayın
-    ws['A1'].s = { font: { bold: true } };
-    ws['B1'].s = { font: { bold: true } };
-    ws['C1'].s = { font: { bold: true } };
-    ws['D1'].s = { font: { bold: true } };
 
-    // Genişlik ayarlarını burada tanımlayın
+    // Hücreleri kalın yapmak için stil tanımlamaları oluşturun
+    const boldStyle = XLSX.utils.book_new();
+    XLSX.utils.book_append_style(boldStyle, {
+      numFmt: "General",
+      font: { bold: true },
+      alignment: { horizontal: 'center' },
+      border: {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' }
+      }
+    });
+
+    // Hücrelere stil tanımlamalarını uygulayın
+    XLSX.utils.book_set_style(ws, boldStyle);
+
+    // Sütun genişlik ayarlarını burada tanımlayın
     const wscols = [
-      { wpx: 200 }, // Eczane Adı
-      { wpx: 400 }, // Adres
-      { wpx: 200 }, // Telefon
-      { wpx: 200 }, // İlçe
+      { wch: 20 }, // Eczane Adı
+      { wch: 40 }, // Adres
+      { wch: 20 }, // Telefon
+      { wch: 20 }, // İlçe
     ];
 
     // Sütun genişlik ayarlarını sayfaya uygulayın
@@ -142,6 +160,7 @@ async function getExcelVer(il) {
     console.log(`"${il}" için eczane verileri "${il}_eczaneler.xlsx" olarak kaydedildi.`);
   }
 }
+
 
 module.exports = {
   getEczaneler,
