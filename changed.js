@@ -3,6 +3,13 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const XLSX = require('xlsx');
 
+// Adres bilgisini temizlemek için yardımcı bir işlev
+const cleanAddress = (address) => {
+  // İstenmeyen metinleri temizle
+  const cleaned = address.replace(/<[^>]*>/g, ''); // HTML etiketlerini kaldır
+  return cleaned.trim();
+};
+
 // İlçe bilgisini çıkarmak için yardımcı bir işlev
 const extractIlceFromAddress = (address) => {
   const matches = address.match(/\/([^/]+)$/); // Adresten ilçe kısmını alır
@@ -15,9 +22,11 @@ const extractIlceFromAddress = (address) => {
 
 // Adres ve ilçe bilgisini ayırmak için yardımcı bir işlev
 const splitAddressAndIlce = (eczaneInfoText) => {
-  const [eczaneAddress, eczaneIlce] = eczaneInfoText.split(' <div class="my-2">');
+  const [eczaneAddress, eczaneIlceDiv] = eczaneInfoText.split('<div class="my-2">');
+  const $ = cheerio.load(eczaneIlceDiv);
+  const eczaneIlce = $('.bg-info.text-light.font-weight-bold').text().trim();
   return {
-    address: eczaneAddress,
+    address: cleanAddress(eczaneAddress),
     ilce: eczaneIlce,
   };
 };
@@ -60,9 +69,9 @@ async function fetchEczaneData(il) {
 
       const eczaneInfo = {
         name: eczaneName,
-        address: cleanAddress(address),
+        address: address,
         phone: eczanePhone,
-        ilce: eczaneIlce,
+        ilce: ilce,
       };
 
       eczaneList.push(eczaneInfo);
