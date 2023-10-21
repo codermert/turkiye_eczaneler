@@ -1,7 +1,8 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
+
 
 
 async function fetchIlIlceData() {
@@ -97,56 +98,70 @@ async function getListeVer(il) {
   }
 }
 
+
+
+// Başlık hücreleri için stil oluşturma fonksiyonu
+function addHeaderCell(worksheet, cellRef, headerText, headerFill, headerFont) {
+  const cell = worksheet.getCell(cellRef);
+  cell.value = headerText;
+  cell.fill = headerFill;
+  cell.font = headerFont;
+}
+
 async function getExcelVer(il) {
   const eczaneList = await getEczaneler(il);
-  if (eczaneList.length > 2) {
-    const workbook = XLSX.utils.book_new();
+  if (eczaneList.length > 1) {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(il);
 
-    const wsData = [
-      ['Eczane Adı', 'Adres', 'Ilçe', 'Telefon']
-    ];
+    // Başlık hücreleri için stil oluşturun
+    const headerFill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '7a66b5' }, // Sarı arka plan rengi
+    };
 
-    eczaneList.forEach(eczane => {
-      wsData.push([eczane.name, eczane.address, eczane.ilce, eczane.phone]);
-    });
+    const headerFont = {
+      bold: true, // Kalın yazı
+      color: { argb: 'ffffff' }, // Beyaz metin rengi
+    };
 
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    // Başlık hücrelerini eklemek için fonksiyonu kullanın
+    addHeaderCell(worksheet, 'A1', 'Eczane Adı', headerFill, headerFont);
+    addHeaderCell(worksheet, 'B1', 'Adres', headerFill, headerFont);
+    addHeaderCell(worksheet, 'C1', 'Ilçe', headerFill, headerFont);
+    addHeaderCell(worksheet, 'D1', 'Telefon', headerFill, headerFont);
+
+    // Başlık satırının yüksekliğini ayarlayın
+    worksheet.getRow(1).height = 20; // 30 birim yükseklik
+
+    // Başlık hücrelerini ve hücre içeriğini ortalayın (yatay ve dikey)
+    worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getCell('B1').alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getCell('C1').alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getCell('D1').alignment = { horizontal: 'center', vertical: 'middle' };
+
+    // Sütun genişliklerini ayarlayın
+    worksheet.getColumn('A').width = 30; // Eczane Adı
+    worksheet.getColumn('B').width = 50; // Adres
+    worksheet.getColumn('C').width = 20; // Ilçe
+    worksheet.getColumn('D').width = 20; // Telefon
 
     // Filtre eklemek için autoFilter seçeneğini kullanın
-    ws['!autofilter'] = { ref: "D1:D" + (eczaneList.length + 1) };
+    worksheet.autoFilter = {
+      from: 'C1',
+      to: 'C',
+    };
 
-    // Hücreleri kalın yapmak için stil tanımlamaları oluşturun
-    const boldStyle = XLSX.utils.book_new();
-    XLSX.utils.book_append_style(boldStyle, {
-    numFmt: "General",
-    font: { bold: true },
-    alignment: { horizontal: 'center' },
-    border: {
-    top: { style: 'thin' },
-    bottom: { style: 'thin' },
-    left: { style: 'thin' },
-    right: { style: 'thin' }
-    }
+    // Verileri ekleyin
+    eczaneList.forEach((eczane, index) => {
+      worksheet.addRow([eczane.name, eczane.address, eczane.ilce, eczane.phone]);
     });
 
-    // Hücrelere stil tanımlamalarını uygulayın
-    XLSX.utils.book_set_style(ws, boldStyle);
-
-    // Sütun genişlik ayarlarını burada tanımlayın
-    const wscols = [
-    { wch: 20 }, // Eczane Adı
-    { wch: 40 }, // Adres
-    { wch: 20 }, // İlçe
-    { wch: 20 }, // Telefon
-    ];
-
-    // Sütun genişlik ayarlarını sayfaya uygulayın
-    ws['!cols'] = wscols;
-
-    XLSX.utils.book_append_sheet(workbook, ws, il);
-
-    XLSX.writeFile(workbook, `${il}_eczaneler.xlsx`);
-    console.log(`"${il}" için eczane verileri "${il}_eczaneler.xlsx" olarak kaydedildi.`);
+    // Excel dosyasını kaydedin
+    const excelFileName = `${il}_eczaneler.xlsx`;
+    await workbook.xlsx.writeFile(excelFileName);
+    console.log(`"${il}" için eczane verileri "${excelFileName}" olarak kaydedildi.`);
   }
 }
 
