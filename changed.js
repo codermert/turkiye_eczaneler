@@ -3,6 +3,15 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const XLSX = require('xlsx');
 
+// İlçe bilgisini çıkarmak için yardımcı bir işlev
+const extractIlceFromAddress = (address) => {
+  const matches = address.match(/\/([^/]+)$/); // Adresten ilçe kısmını alır
+  if (matches) {
+    return matches[1].trim();
+  } else {
+    return '';
+  }
+};
 
 async function fetchIlIlceData() {
   const ilIlceURL = 'https://raw.githubusercontent.com/codermert/turkiye_eczaneler/main/iller.json';
@@ -41,6 +50,7 @@ async function fetchEczaneData(il) {
         name: eczaneName,
         address: eczaneAddress,
         phone: eczanePhone,
+        ilce: extractIlceFromAddress(eczaneAddress), // İlçe bilgisini alır
       };
 
       eczaneList.push(eczaneInfo);
@@ -67,7 +77,7 @@ async function getEczaneler(il) {
 
 async function getJsonVer(il) {
   const eczaneList = await getEczaneler(il);
-  if (eczaneList.length > 1) {
+  if (eczaneList.length > 2) {
     const jsonData = JSON.stringify(eczaneList, null, 2);
     fs.writeFileSync(`${il}_eczaneler.json`, jsonData);
     console.log(`"${il}" için eczane verileri "${il}_eczaneler.json" olarak kaydedildi.`);
@@ -76,9 +86,9 @@ async function getJsonVer(il) {
 
 async function getListeVer(il) {
   const eczaneList = await getEczaneler(il);
-  if (eczaneList.length > 1) {
+  if (eczaneList.length > 2) {
     const liste = eczaneList.map((eczane, index) => {
-      return `Eczane ${index + 1}:\nAdı: ${eczane.name}\nAdres: ${eczane.address}\nTelefon: ${eczane.phone}\n\n`;
+      return `Eczane ${index + 1}:\nAdı: ${eczane.name}\nAdres: ${eczane.address}\nTelefon: ${eczane.phone}\nİlçe: ${eczane.ilce}\n\n`;
     });
     fs.writeFileSync(`${il}_eczaneler.txt`, liste.join(''));
     console.log(`"${il}" için eczane listesi "${il}_eczaneler.txt" olarak kaydedildi.`);
@@ -87,15 +97,15 @@ async function getListeVer(il) {
 
 async function getExcelVer(il) {
   const eczaneList = await getEczaneler(il);
-  if (eczaneList.length > 1) {
+  if (eczaneList.length > 2) {
     const workbook = XLSX.utils.book_new();
 
     const wsData = [
-      ['Eczane Adı', 'Adres', 'Telefon']
+      ['Eczane Adı', 'Adres', 'Telefon', 'İlçe']
     ];
 
     eczaneList.forEach(eczane => {
-      wsData.push([eczane.name, eczane.address, eczane.phone]);
+      wsData.push([eczane.name, eczane.address, eczane.phone, eczane.ilce]);
     });
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
