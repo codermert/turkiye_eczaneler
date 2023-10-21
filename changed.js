@@ -3,33 +3,6 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const XLSX = require('xlsx');
 
-// Adres bilgisini temizlemek için yardımcı bir işlev
-const cleanAddress = (address) => {
-  // İstenmeyen metinleri temizle
-  const cleaned = address.replace(/<[^>]*>/g, ''); // HTML etiketlerini kaldır
-  return cleaned.trim();
-};
-
-// İlçe bilgisini çıkarmak için yardımcı bir işlev
-const extractIlceFromAddress = (address) => {
-  const matches = address.match(/\/([^/]+)$/); // Adresten ilçe kısmını alır
-  if (matches) {
-    return matches[1].trim();
-  } else {
-    return '';
-  }
-};
-
-// Adres ve ilçe bilgisini ayırmak için yardımcı bir işlev
-const splitAddressAndIlce = (eczaneInfoText) => {
-  const [eczaneAddress, eczaneIlceDiv] = eczaneInfoText.split('<div class="my-2">');
-  const $ = cheerio.load(eczaneIlceDiv);
-  const eczaneIlce = $('.bg-info.text-light.font-weight-bold').text().trim();
-  return {
-    address: cleanAddress(eczaneAddress),
-    ilce: eczaneIlce,
-  };
-};
 
 async function fetchIlIlceData() {
   const ilIlceURL = 'https://raw.githubusercontent.com/codermert/turkiye_eczaneler/main/iller.json';
@@ -61,17 +34,23 @@ async function fetchEczaneData(il) {
 
     $('div.row').each((index, element) => {
       const eczaneName = $(element).find('a.text-capitalize.font-weight-bold').text().trim();
-      const eczaneInfoDiv = $(element).find('.col-lg-6.text-center.text-lg-left.text-capitalize');
-      const eczaneInfoText = eczaneInfoDiv.text();
-      const { address, ilce } = splitAddressAndIlce(eczaneInfoText);
+      
+      // Adres ve ilçeyi ayırmak için adresDiv'i seçiyoruz
+      const adresDiv = $(element).find('div.my-2');
+      
+      // Adresi seçiyoruz
+      const eczaneAddress = adresDiv.prev().text().trim();
+      
+      // Ilçeyi seçiyoruz
+      const eczaneIlce = adresDiv.find('span').text().trim();
 
       const eczanePhone = $(element).find('a.text-dark').text().trim();
 
       const eczaneInfo = {
         name: eczaneName,
-        address: address,
+        address: eczaneAddress,
+        ilce: eczaneIlce,
         phone: eczanePhone,
-        ilce: ilce,
       };
 
       eczaneList.push(eczaneInfo);
@@ -99,7 +78,7 @@ async function getEczaneler(il) {
 
 async function getJsonVer(il) {
   const eczaneList = await getEczaneler(il);
-  if (eczaneList.length > 2) {
+  if (eczaneList.length > 1) {
     const jsonData = JSON.stringify(eczaneList, null, 2);
     fs.writeFileSync(`${il}_eczaneler.json`, jsonData);
     console.log(`"${il}" için eczane verileri "${il}_eczaneler.json" olarak kaydedildi.`);
@@ -108,9 +87,9 @@ async function getJsonVer(il) {
 
 async function getListeVer(il) {
   const eczaneList = await getEczaneler(il);
-  if (eczaneList.length > 2) {
+  if (eczaneList.length > 1) {
     const liste = eczaneList.map((eczane, index) => {
-      return `Eczane ${index + 1}:\nAdı: ${eczane.name}\nAdres: ${eczane.address}\nTelefon: ${eczane.phone}\nİlçe: ${eczane.ilce}\n\n`;
+      return `Eczane ${index + 1}:\nAdı: ${eczane.name}\nAdres: ${eczane.address}\nIlçe: ${eczane.ilce}\nTelefon: ${eczane.phone}\n\n`;
     });
     fs.writeFileSync(`${il}_eczaneler.txt`, liste.join(''));
     console.log(`"${il}" için eczane listesi "${il}_eczaneler.txt" olarak kaydedildi.`);
@@ -123,45 +102,14 @@ async function getExcelVer(il) {
     const workbook = XLSX.utils.book_new();
 
     const wsData = [
-      ['Eczane Adı', 'Adres', 'Telefon', 'İlçe']
+      ['Eczane Adı', 'Adres', 'Ilçe', 'Telefon']
     ];
 
     eczaneList.forEach(eczane => {
-      wsData.push([eczane.name, eczane.address, eczane.phone, eczane.ilce]);
+      wsData.push([eczane.name, eczane.address, eczane.ilce, eczane.phone]);
     });
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Filtre eklemek için autoFilter seçeneğini kullanın
-    ws['!autofilter'] = { ref: "D1:D" + (eczaneList.length + 1) };
-
-    // Hücreleri kalın yapmak için stil tanımlamaları oluşturun
-    const boldStyle = XLSX.utils.book_new();
-    XLSX.utils.book_append_style(boldStyle, {
-      numFmt: "General",
-      font: { bold: true },
-      alignment: { horizontal: 'center' },
-      border: {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' }
-      }
-    });
-
-    // Hücrelere stil tanımlamalarını uygulayın
-    XLSX.utils.book_set_style(ws, boldStyle);
-
-    // Sütun genişlik ayarlarını burada tanımlayın
-    const wscols = [
-      { wch: 20 }, // Eczane Adı
-      { wch: 40 }, // Adres
-      { wch: 20 }, // Telefon
-      { wch: 20 }, // İlçe
-    ];
-
-    // Sütun genişlik ayarlarını sayfaya uygulayın
-    ws['!cols'] = wscols;
 
     XLSX.utils.book_append_sheet(workbook, ws, il);
 
@@ -169,7 +117,6 @@ async function getExcelVer(il) {
     console.log(`"${il}" için eczane verileri "${il}_eczaneler.xlsx" olarak kaydedildi.`);
   }
 }
-
 
 module.exports = {
   getEczaneler,
