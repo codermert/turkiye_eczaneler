@@ -35,14 +35,14 @@ async function fetchEczaneData(il) {
     $('div.row').each((index, element) => {
       const eczaneName = $(element).find('a.text-capitalize.font-weight-bold').text().trim();
       
-      // Adres ve ilçeyi ayırmak için adresDiv'i seçiyoruz
-      const adresDiv = $(element).find('div.my-2');
-      
       // Adresi seçiyoruz
-      const eczaneAddress = adresDiv.prev().text().trim();
+      const eczaneAddress = $(element).find('.text-capitalize:eq(1)').text().trim();
       
-      // Ilçeyi seçiyoruz
-      const eczaneIlce = adresDiv.find('span').text().trim();
+      // İlçeyi almak için ilçenin bulunduğu öğeyi seçiyoruz
+      const ilceElement = $(element).find('div.my-2 span');
+
+      // İlçeyi alıyoruz
+      const eczaneIlce = ilceElement.text().trim();
 
       const eczanePhone = $(element).find('a.text-dark').text().trim();
 
@@ -62,6 +62,7 @@ async function fetchEczaneData(il) {
     return [];
   }
 }
+
 
 
 async function getEczaneler(il) {
@@ -110,6 +111,37 @@ async function getExcelVer(il) {
     });
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Filtre eklemek için autoFilter seçeneğini kullanın
+    ws['!autofilter'] = { ref: "D1:D" + (eczaneList.length + 1) };
+
+    // Hücreleri kalın yapmak için stil tanımlamaları oluşturun
+    const boldStyle = XLSX.utils.book_new();
+    XLSX.utils.book_append_style(boldStyle, {
+    numFmt: "General",
+    font: { bold: true },
+    alignment: { horizontal: 'center' },
+    border: {
+    top: { style: 'thin' },
+    bottom: { style: 'thin' },
+    left: { style: 'thin' },
+    right: { style: 'thin' }
+    }
+    });
+
+    // Hücrelere stil tanımlamalarını uygulayın
+    XLSX.utils.book_set_style(ws, boldStyle);
+
+    // Sütun genişlik ayarlarını burada tanımlayın
+    const wscols = [
+    { wch: 20 }, // Eczane Adı
+    { wch: 40 }, // Adres
+    { wch: 20 }, // İlçe
+    { wch: 20 }, // Telefon
+    ];
+
+    // Sütun genişlik ayarlarını sayfaya uygulayın
+    ws['!cols'] = wscols;
 
     XLSX.utils.book_append_sheet(workbook, ws, il);
 
