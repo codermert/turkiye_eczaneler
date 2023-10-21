@@ -110,12 +110,21 @@ async function getExcelVer(il) {
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
+    // Filtre eklemek için autoFilter seçeneğini kullanın
+    ws['!autofilter'] = { ref: "D1:D" + (eczaneList.length + 1) };
+    // İlk satırın stillerini ayarlayın
+    ws['A1'].s = { font: { bold: true } };
+    ws['B1'].s = { font: { bold: true } };
+    ws['C1'].s = { font: { bold: true } };
+    ws['D1'].s = { font: { bold: true } };
+
     XLSX.utils.book_append_sheet(workbook, ws, il);
 
     XLSX.writeFile(workbook, `${il}_eczaneler.xlsx`);
     console.log(`"${il}" için eczane verileri "${il}_eczaneler.xlsx" olarak kaydedildi.`);
   }
 }
+
 
 module.exports = {
   getEczaneler,
