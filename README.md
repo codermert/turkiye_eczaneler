@@ -16,6 +16,8 @@ Türkiye'deki bir ilin **(örneğin "Bursa")** eczane verilerini çekmek ve bu v
 
 - getListeVer(il): Belirli bir ilin eczane verilerini metin formatında kaydeder. Bu, insanlar için okunabilir bir biçimde eczane verilerini saklar ve paylaşır.
 
+- getExcelVer(il): Belirli bir ilin eczane verilerini XLSX formatında kaydeder. İşlemlerde kullanmak için kullanışlıdır.
+
 - **99%** oranında çalışıyor
 
 Ekleme yapmak isterseniz eğer mail : mertbey@bk.ru
@@ -72,6 +74,16 @@ getListeVer(il)
     console.error(`"${il}" için hata: ${error}`);
   });
 
+
+getExcelVer(il)
+  .then(() => {
+    console.log(`"${il}" ilinin eczane verileri Excel olarak kaydedildi.`);
+  })
+  .catch((error) => {
+    console.error(`"${il}" için hata: ${error}`);
+  });
+
+
 ```
 
 ## Eczane verilerini almanın basit yolu:
@@ -112,6 +124,17 @@ getJsonVer(il)
 getListeVer(il)
   .then(() => {
     console.log(`"${il}" ilinin eczane verileri metin olarak kaydedildi.`);
+  })
+  .catch((error) => {
+    console.error(`"${il}" için hata: ${error}`);
+  });
+```
+
+
+```javascript
+getExcelVer(il)
+  .then(() => {
+    console.log(`"${il}" ilinin eczane verileri Excel olarak kaydedildi.`);
   })
   .catch((error) => {
     console.error(`"${il}" için hata: ${error}`);
