@@ -13,6 +13,13 @@ const extractIlceFromAddress = (address) => {
   }
 };
 
+// Adres bilgisini temizlemek için yardımcı bir işlev
+const cleanAddress = (address) => {
+  // İstenmeyen metinleri temizle
+  const cleaned = address.replace(/<[^>]*>/g, ''); // HTML etiketlerini kaldır
+  return cleaned.trim();
+};
+
 async function fetchIlIlceData() {
   const ilIlceURL = 'https://raw.githubusercontent.com/codermert/turkiye_eczaneler/main/iller.json';
 
@@ -43,7 +50,7 @@ async function fetchEczaneData(il) {
 
     $('div.row').each((index, element) => {
       const eczaneName = $(element).find('a.text-capitalize.font-weight-bold').text().trim();
-      const eczaneAddress = $(element).find('.text-capitalize:eq(1)').text().trim();
+      const eczaneAddress = cleanAddress($(element).find('.text-capitalize:eq(1)').html()); // Temizlenmiş adresi al
       const eczanePhone = $(element).find('a.text-dark').text().trim();
 
       const eczaneInfo = {
@@ -118,13 +125,23 @@ async function getExcelVer(il) {
     ws['C1'].s = { font: { bold: true } };
     ws['D1'].s = { font: { bold: true } };
 
+    // Genişlik ayarlarını burada tanımlayın
+    const wscols = [
+      { wpx: 200 }, // Eczane Adı
+      { wpx: 400 }, // Adres
+      { wpx: 200 }, // Telefon
+      { wpx: 200 }, // İlçe
+    ];
+
+    // Sütun genişlik ayarlarını sayfaya uygulayın
+    ws['!cols'] = wscols;
+
     XLSX.utils.book_append_sheet(workbook, ws, il);
 
     XLSX.writeFile(workbook, `${il}_eczaneler.xlsx`);
     console.log(`"${il}" için eczane verileri "${il}_eczaneler.xlsx" olarak kaydedildi.`);
   }
 }
-
 
 module.exports = {
   getEczaneler,
