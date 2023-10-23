@@ -113,6 +113,37 @@ async function getExcelVer(il) {
   if (eczaneList.length > 1) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(il);
+    const analizSheet = workbook.addWorksheet('Analiz');
+    analizSheet.getCell('A1').value = 'Toplam Eczane Sayısı';
+    analizSheet.getCell('A2').value = eczaneList.length; // Toplam eczane sayısı
+    const ilceDistribution = {};
+    eczaneList.forEach((eczane) => {
+      const ilce = eczane.ilce;
+      if (ilce in ilceDistribution) {
+        ilceDistribution[ilce]++;
+      } else {
+        ilceDistribution[ilce] = 1;
+      }
+    });
+
+    // Pie chart için ilçe dağılımını ekleyin
+    const ilceLabels = Object.keys(ilceDistribution);
+    const ilceData = ilceLabels.map((ilce) => {
+      return [ilce, ilceDistribution[ilce]];
+    });
+
+    analizSheet.getCell('C1').value = 'Ilçe';
+    analizSheet.getCell('C2').value = 'Eczane Sayısı';
+
+    for (let i = 0; i < ilceData.length; i++) {
+      analizSheet.getCell(`C${i + 3}`).value = ilceData[i][0];
+      analizSheet.getCell(`D${i + 3}`).value = ilceData[i][1];
+    }
+
+    // Pie chart eklemek için eşleşen veri ekleyin
+    const pieChart = analizSheet.addChart('pie', 'D5', 'E16');
+    pieChart.title = 'Ilçe Dağılımı';
+    pieChart.addSeries({ name: 'Ilçeler', labels: ilceLabels, values: 'Analiz!$D$3:$D$' + (ilceData.length + 2) });
 
     // Başlık hücreleri için stil oluşturun
     const headerFill = {
