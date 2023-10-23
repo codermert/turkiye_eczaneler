@@ -153,9 +153,30 @@ async function getExcelVer(il) {
       to: 'C',
     };
 
-    // Verileri ekleyin
+    // Verileri eklerken her iki satırı farklı renkte yapmak için bir bayrak kullanın
+    let isWhiteRow = false;
+
+    // Renkli satır rengi
+    const colorRowFill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '98c0e5' }, // RGB renk kodu
+    };
+
     eczaneList.forEach((eczane, index) => {
-      worksheet.addRow([eczane.name, eczane.address, eczane.ilce, eczane.phone]);
+      const rowData = [eczane.name, eczane.address, eczane.ilce, eczane.phone];
+      
+      // Satır rengini değiştir
+      if (isWhiteRow) {
+        worksheet.addRow(rowData);
+      } else {
+        const row = worksheet.addRow(rowData);
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.fill = colorRowFill; // Renkli satır için renkli arka plan
+        });
+      }
+
+      isWhiteRow = !isWhiteRow;
     });
 
     // Excel dosyasını kaydedin
@@ -164,6 +185,7 @@ async function getExcelVer(il) {
     console.log(`"${il}" için eczane verileri "${excelFileName}" olarak kaydedildi.`);
   }
 }
+
 
 module.exports = {
   getEczaneler,
