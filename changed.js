@@ -39,7 +39,7 @@ async function fetchEczaneData(il) {
       // Adresi seçiyoruz
       const eczaneAddress = $(element).find('.text-capitalize:eq(1)').text().trim();
       
-      // İlçeyi almak için ilçenin bulunduğu öğeyi seçiyoruz
+      // İlçeyi almak için ilçenin bulunduğu öğeyi seç
       const ilceElement = $(element).find('div.my-2 span');
 
       // İlçeyi alıyoruz
@@ -114,19 +114,19 @@ async function getExcelVer(il) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(il);
 
-    // Başlık hücreleri için stil oluşturun
+    // Başlık hücreleri için stil oluştur
     const headerFill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: '7a66b5' }, // Sarı arka plan rengi
+      fgColor: { argb: '7a66b5' }, //  arka plan rengi
     };
 
     const headerFont = {
       bold: true, // Kalın yazı
-      color: { argb: 'ffffff' }, // Beyaz metin rengi
+      color: { argb: 'ffffff' }, //  metin rengi
     };
 
-    // Başlık hücrelerini eklemek için fonksiyonu kullanın
+    // Başlık hücrelerini eklemek için fonksiyonu 
     addHeaderCell(worksheet, 'A1', 'Eczane Adı', headerFill, headerFont);
     addHeaderCell(worksheet, 'B1', 'Adres', headerFill, headerFont);
     addHeaderCell(worksheet, 'C1', 'Ilçe', headerFill, headerFont);
@@ -136,17 +136,13 @@ async function getExcelVer(il) {
     addHeaderCell(worksheet, 'G1', 'Ilce & Semt', headerFill, headerFont);
     addHeaderCell(worksheet, 'H1', 'Sayı', headerFill, headerFont);
 
-    // Başlık satırının yüksekliğini ayarlayın
-    worksheet.getRow(1).height = 20; // 30 birim yükseklik
+    worksheet.getRow(1).height = 20; 
 
-    // Başlık hücrelerini ve hücre içeriğini ortalayın (yatay ve dikey)
     worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getCell('B1').alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getCell('C1').alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getCell('D1').alignment = { horizontal: 'center', vertical: 'middle' };
-    
-
-    // Sütun genişliklerini ayarlayın
+  
     worksheet.getColumn('A').width = 30; // Eczane Adı
     worksheet.getColumn('B').width = 50; // Adres
     worksheet.getColumn('C').width = 20; // Ilçe
@@ -156,13 +152,11 @@ async function getExcelVer(il) {
     worksheet.getColumn('G').width = 20;
     worksheet.getColumn('H').width = 8;
 
-    // Filtre eklemek için autoFilter seçeneğini kullanın
     worksheet.autoFilter = {
       from: 'C1',
       to: 'C',
     };
 
-    // Verileri eklerken her iki satırı farklı renkte yapmak için bir bayrak kullanın
     let isWhiteRow = false;
 
     // Renkli satır rengi
@@ -172,7 +166,7 @@ async function getExcelVer(il) {
       fgColor: { argb: '98c0e5' }, // RGB renk kodu
     };
 
-    // İlçe sayılarını toplamak için ilceDistribution adında bir nesne oluşturun
+    // İlçe sayılarını toplamak için ilceDistribution adında bir nesne oluştur
     const ilceDistribution = {};
 
     eczaneList.forEach((eczane, index) => {
@@ -221,7 +215,7 @@ async function getExcelVer(il) {
       rowNumber++;
     }
 
-    // Excel dosyasını kaydedin
+    // Excel dosyasını kaydet
     const excelFileName = `${il}_eczaneler.xlsx`;
     await workbook.xlsx.writeFile(excelFileName);
 
