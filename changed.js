@@ -180,6 +180,19 @@ async function getExcelVer(il) {
       isWhiteRow = !isWhiteRow;
     });
 
+    // İlçe sayılarını toplamak için ilceDistribution adında bir nesne oluşturun
+    const ilceDistribution = {};
+
+    // İlçe dağılımını hesapla
+    eczaneList.forEach((eczane) => {
+      const ilce = eczane.ilce;
+      if (ilce in ilceDistribution) {
+        ilceDistribution[ilce]++;
+      } else {
+        ilceDistribution[ilce] = 1;
+      }
+    });
+
     // Excel dosyasını kaydedin
     const excelFileName = `${il}_eczaneler.xlsx`;
     await workbook.xlsx.writeFile(excelFileName);
