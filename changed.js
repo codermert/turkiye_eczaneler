@@ -131,8 +131,8 @@ async function getExcelVer(il) {
     addHeaderCell(worksheet, 'B1', 'Adres', headerFill, headerFont);
     addHeaderCell(worksheet, 'C1', 'Ilçe', headerFill, headerFont);
     addHeaderCell(worksheet, 'D1', 'Telefon', headerFill, headerFont);
-    addHeaderCell(worksheet, 'G6', 'Toplam Eczane Sayısı', headerFill, headerFont);
-    addHeaderCell(worksheet, 'H6', 'Toplam İlçe Sayısı', headerFill, headerFont);
+    addHeaderCell(worksheet, 'G1', 'Toplam Eczane Sayısı', headerFill, headerFont);
+    addHeaderCell(worksheet, 'H1', 'Toplam İlçe Sayısı', headerFill, headerFont);
 
     // Başlık satırının yüksekliğini ayarlayın
     worksheet.getRow(1).height = 20; // 30 birim yükseklik
@@ -202,12 +202,12 @@ async function getExcelVer(il) {
     const toplamIlceSayisi = Object.keys(ilceDistribution).length;
 
     // G2, G3 ve E hücrelerine toplam eczane sayısını yazdır
-    worksheet.getCell('G6').value = 'Toplam Eczane Sayısı';
-    worksheet.getCell('G7').value = toplamEczaneSayisi;
+    worksheet.getCell('G1').value = 'Toplam Eczane Sayısı';
+    worksheet.getCell('G2').value = toplamEczaneSayisi;
 
     // H2, H3 ve E hücrelerine toplam ilçe sayısını yazdır
-    worksheet.getCell('H6').value = 'Toplam İlçe Sayısı';
-    worksheet.getCell('H7').value = toplamIlceSayisi;
+    worksheet.getCell('H1').value = 'Toplam İlçe Sayısı';
+    worksheet.getCell('H2').value = toplamIlceSayisi;
 
     // Excel dosyasını kaydedin
     const excelFileName = `${il}_eczaneler.xlsx`;
