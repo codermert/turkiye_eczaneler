@@ -131,8 +131,10 @@ async function getExcelVer(il) {
     addHeaderCell(worksheet, 'B1', 'Adres', headerFill, headerFont);
     addHeaderCell(worksheet, 'C1', 'Ilçe', headerFill, headerFont);
     addHeaderCell(worksheet, 'D1', 'Telefon', headerFill, headerFont);
-    addHeaderCell(worksheet, 'G1', 'Toplam Eczane Sayısı', headerFill, headerFont);
-    addHeaderCell(worksheet, 'H1', 'Toplam İlçe Sayısı', headerFill, headerFont);
+    addHeaderCell(worksheet, 'E1', 'Toplam Eczane Sayısı', headerFill, headerFont);
+    addHeaderCell(worksheet, 'F1', 'Toplam Semt Sayısı', headerFill, headerFont);
+    addHeaderCell(worksheet, 'G1', 'Ilce & Semt', headerFill, headerFont);
+    addHeaderCell(worksheet, 'H1', 'Sayı', headerFill, headerFont);
 
     // Başlık satırının yüksekliğini ayarlayın
     worksheet.getRow(1).height = 20; // 30 birim yükseklik
@@ -149,8 +151,10 @@ async function getExcelVer(il) {
     worksheet.getColumn('B').width = 50; // Adres
     worksheet.getColumn('C').width = 20; // Ilçe
     worksheet.getColumn('D').width = 20; // Telefon
-    worksheet.getColumn('G').width = 20; 
-    worksheet.getColumn('H').width = 20;
+    worksheet.getColumn('E').width = 15; 
+    worksheet.getColumn('F').width = 10;
+    worksheet.getColumn('G').width = 20;
+    worksheet.getColumn('H').width = 8;
 
     // Filtre eklemek için autoFilter seçeneğini kullanın
     worksheet.autoFilter = {
@@ -202,18 +206,18 @@ async function getExcelVer(il) {
     const toplamIlceSayisi = Object.keys(ilceDistribution).length;
 
     // G2, G3 ve E hücrelerine toplam eczane sayısını yazdır
-    worksheet.getCell('G1').value = 'Toplam Eczane Sayısı';
-    worksheet.getCell('G2').value = toplamEczaneSayisi;
+    worksheet.getCell('E1').value = 'Toplam Eczane Sayısı';
+    worksheet.getCell('E2').value = toplamEczaneSayisi;
 
     // H2, H3 ve E hücrelerine toplam ilçe sayısını yazdır
-    worksheet.getCell('H1').value = 'Toplam İlçe Sayısı';
-    worksheet.getCell('H2').value = toplamIlceSayisi;
+    worksheet.getCell('F1').value = 'Toplam Semt Sayısı';
+    worksheet.getCell('F2').value = toplamIlceSayisi;
 
     // İlçelerde bulunan eczane sayılarını yazdır
     let rowNumber = 2;
     for (const ilce in ilceDistribution) {
-      worksheet.getCell(`I${rowNumber}`).value = ilce;
-      worksheet.getCell(`J${rowNumber}`).value = ilceDistribution[ilce];
+      worksheet.getCell(`G${rowNumber}`).value = ilce;
+      worksheet.getCell(`H${rowNumber}`).value = ilceDistribution[ilce];
       rowNumber++;
     }
 
