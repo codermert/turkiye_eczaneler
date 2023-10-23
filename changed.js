@@ -209,6 +209,14 @@ async function getExcelVer(il) {
     worksheet.getCell('H1').value = 'Toplam İlçe Sayısı';
     worksheet.getCell('H2').value = toplamIlceSayisi;
 
+    // İlçelerde bulunan eczane sayılarını yazdır
+    let rowNumber = 2;
+    for (const ilce in ilceDistribution) {
+      worksheet.getCell(`I${rowNumber}`).value = ilce;
+      worksheet.getCell(`J${rowNumber}`).value = ilceDistribution[ilce];
+      rowNumber++;
+    }
+
     // Excel dosyasını kaydedin
     const excelFileName = `${il}_eczaneler.xlsx`;
     await workbook.xlsx.writeFile(excelFileName);
@@ -216,6 +224,7 @@ async function getExcelVer(il) {
     console.log(`"${il}" için eczane verileri "${excelFileName}" olarak kaydedildi.`);
   }
 }
+
 
 
 
