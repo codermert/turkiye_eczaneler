@@ -131,6 +131,8 @@ async function getExcelVer(il) {
     addHeaderCell(worksheet, 'B1', 'Adres', headerFill, headerFont);
     addHeaderCell(worksheet, 'C1', 'Ilçe', headerFill, headerFont);
     addHeaderCell(worksheet, 'D1', 'Telefon', headerFill, headerFont);
+    addHeaderCell(worksheet, 'G6', 'Toplam Eczane Sayısı', headerFill, headerFont);
+    addHeaderCell(worksheet, 'H6', 'Toplam İlçe Sayısı', headerFill, headerFont);
 
     // Başlık satırının yüksekliğini ayarlayın
     worksheet.getRow(1).height = 20; // 30 birim yükseklik
@@ -140,12 +142,15 @@ async function getExcelVer(il) {
     worksheet.getCell('B1').alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getCell('C1').alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getCell('D1').alignment = { horizontal: 'center', vertical: 'middle' };
+    
 
     // Sütun genişliklerini ayarlayın
     worksheet.getColumn('A').width = 30; // Eczane Adı
     worksheet.getColumn('B').width = 50; // Adres
     worksheet.getColumn('C').width = 20; // Ilçe
     worksheet.getColumn('D').width = 20; // Telefon
+    worksheet.getColumn('G').width = 20; 
+    worksheet.getColumn('H').width = 20;
 
     // Filtre eklemek için autoFilter seçeneğini kullanın
     worksheet.autoFilter = {
@@ -197,12 +202,12 @@ async function getExcelVer(il) {
     const toplamIlceSayisi = Object.keys(ilceDistribution).length;
 
     // G2, G3 ve E hücrelerine toplam eczane sayısını yazdır
-    worksheet.getCell('G2').value = 'Toplam Eczane Sayısı';
-    worksheet.getCell('G3').value = toplamEczaneSayisi;
+    worksheet.getCell('G6').value = 'Toplam Eczane Sayısı';
+    worksheet.getCell('G7').value = toplamEczaneSayisi;
 
     // H2, H3 ve E hücrelerine toplam ilçe sayısını yazdır
-    worksheet.getCell('H2').value = 'Toplam İlçe Sayısı';
-    worksheet.getCell('H3').value = toplamIlceSayisi;
+    worksheet.getCell('H6').value = 'Toplam İlçe Sayısı';
+    worksheet.getCell('H7').value = toplamIlceSayisi;
 
     // Excel dosyasını kaydedin
     const excelFileName = `${il}_eczaneler.xlsx`;
