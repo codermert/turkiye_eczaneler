@@ -1,26 +1,26 @@
 {
-    "name": "turkiye_eczaneler",
-    "version": "1.0.3",
-    "description": "Eczane verileri",
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js"
-    },
-    "author": "codermert",
-    "license": "MIT",
-    "dependencies": {
-        "axios": "^1.5.1",
-        "cheerio": "^1.0.0-rc.12",
-        "exceljs": "^4.4.0"
-    },
-    "keywords": [
-        "eczane",
-        "Türkiye",
-        "sağlık",
-        "turkiye_eczaneler",
-        "eczaneler",
-        "eczane listesi",
-        "node js eczaneler",
-        "codermert"
-    ]
+  "name": "turkiye_eczaneler",
+  "version": "1.0.5",
+  "description": "Eczane verileri",
+  "main": "index.js",
+  "scripts": {
+      "start": "node index.js"
+  },
+  "author": "codermert",
+  "license": "MIT",
+  "dependencies": {
+      "axios": "^1.5.1",
+      "cheerio": "^1.0.0-rc.12",
+      "exceljs": "^4.4.0"
+  },
+  "keywords": [
+      "eczane",
+      "Türkiye",
+      "sağlık",
+      "turkiye_eczaneler",
+      "eczaneler",
+      "eczane listesi",
+      "node js eczaneler",
+      "codermert"
+  ]
 }
