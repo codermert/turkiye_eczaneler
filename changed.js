@@ -18,51 +18,61 @@ async function fetchIlIlceData() {
 }
 
 async function fetchEczaneData(il) {
-  const url = `https://www.eczaneler.gen.tr/eczaneler/${il}`;
-
-  const headers = {
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36',
-    Referer: url,
-  };
-
-  try {
-    const response = await axios.get(url, { headers });
-    const html = response.data;
-    const $ = cheerio.load(html);
-
-    const eczaneList = [];
-
-    $('div.row').each((index, element) => {
-      const eczaneName = $(element).find('a.text-capitalize.font-weight-bold').text().trim();
-      
-      // Adresi seçiyoruz
-      const eczaneAddress = $(element).find('.text-capitalize:eq(1)').text().trim();
-      
-      // İlçeyi almak için ilçenin bulunduğu öğeyi seç
-      const ilceElement = $(element).find('div.my-2 span');
-
-      // İlçeyi alıyoruz
-      const eczaneIlce = ilceElement.text().trim();
-
-      const eczanePhone = $(element).find('a.text-dark').text().trim();
-
-      const eczaneInfo = {
-        name: eczaneName,
-        address: eczaneAddress,
-        ilce: eczaneIlce,
-        phone: eczanePhone,
-      };
-
-      eczaneList.push(eczaneInfo);
-    });
-
-    return eczaneList;
-  } catch (error) {
-    console.error(`"${il}" için hata: ${error}`);
-    return [];
+    const url = `https://www.eczaneler.gen.tr/eczaneler/${il}`;
+  
+    const headers = {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36',
+      Referer: url,
+    };
+  
+    try {
+      const response = await axios.get(url, { headers });
+      const html = response.data;
+      const $ = cheerio.load(html);
+  
+      const eczaneList = [];
+  
+      // Tüm eczane adlarını içeren ilk satırı atlayın
+      let isFirstRow = true;
+  
+      $('div.row').each((index, element) => {
+        if (isFirstRow) {
+          isFirstRow = false;
+          return;
+        }
+  
+        const eczaneName = $(element).find('a.text-capitalize.font-weight-bold').text().trim();
+        
+        // Adresi seçiyoruz
+        const eczaneAddress = $(element).find('.text-capitalize:eq(1)').text().trim();
+        
+        // İlçeyi almak için ilçenin bulunduğu öğeyi seç
+        const ilceElement = $(element).find('div.my-2 span');
+  
+        // İlçeyi alıyoruz
+        const eczaneIlce = ilceElement.text().trim();
+  
+        const eczanePhone = $(element).find('a.text-dark').text().trim();
+  
+        const eczaneInfo = {
+          name: eczaneName,
+          address: eczaneAddress,
+          ilce: eczaneIlce,
+          phone: eczanePhone,
+        };
+  
+        eczaneList.push(eczaneInfo);
+      });
+  
+      return eczaneList;
+    } catch (error) {
+      console.error(`"${il}" için hata: ${error}`);
+      return [];
+    }
   }
-}
+  
+
 
 
 
@@ -98,6 +108,21 @@ async function getListeVer(il) {
   }
 }
 
+
+async function getVcfVer(il) {
+    const eczaneList = await getEczaneler(il);
+    if (eczaneList.length > 1) {
+      const vcfData = eczaneList.map((eczane, index) => {
+        return `BEGIN:VCARD
+        VERSION:3.0
+        FN:${eczane.name} - ${eczane.ilce}
+        TEL:${eczane.phone}
+        END:VCARD\n`;
+            });
+      fs.writeFileSync(`${il}_eczaneler.vcf`, vcfData.join(''));
+      console.log(`"${il}" için eczane kişi bilgileri "${il}_eczaneler.vcf" olarak kaydedildi.`);
+    }
+  }
 
 
 // Başlık hücreleri için stil oluşturma fonksiyonu
@@ -154,7 +179,7 @@ async function getExcelVer(il) {
 
     worksheet.autoFilter = {
       from: 'C1',
-      to: 'C',
+      to: 'C1',
     };
 
     let isWhiteRow = false;
@@ -230,5 +255,6 @@ module.exports = {
   getEczaneler,
   getJsonVer,
   getListeVer,
-  getExcelVer
+  getExcelVer,
+  getVcfVer
 };
