@@ -1,4 +1,3 @@
-
 # TÜRKİYE ECZANELER LİSTESİ
 
 [![NPM Version](https://badge.fury.io/js/turkiye_eczaneler.svg)](https://badge.fury.io/js/turkiye_eczaneler) [![JS Modules](https://img.shields.io/badge/JS-Modules-brightgreen)](https://github.com/codermert) [![Powered by Coder Mert](https://img.shields.io/badge/Powered%20By-Coder%20Mert-brightgreen.svg)](https://github.com/codermert) [![Node JS](https://img.shields.io/badge/%3C%2F%3E-Nodejs-blue.svg)](https://nodejs.org/tr)
@@ -16,7 +15,10 @@ Türkiye'deki bir ilin **(örneğin "Bursa")** eczane verilerini çekmek ve bu v
 
 - getListeVer(il): Belirli bir ilin eczane verilerini metin formatında kaydeder. Bu, insanlar için okunabilir bir biçimde eczane verilerini saklar ve paylaşır.
 
-- getExcelVer(il): Belirli bir ilin eczane verilerini XLSX formatında kaydeder. İşlemlerde kullanmak için kullanışlıdır.
+- getExcelVer(il) : Verileri detaylı Excel formatında verir. Detaylı Semt filtreleme özelliği etkin.
+
+- getVcfVer(il) : Tüm eczaneleri tek bir VCF dosyası oluşturarak İl - İlçe şeklinde numaraları kaydederek verir.
+
 
 - **99%** oranında çalışıyor
 
@@ -74,16 +76,6 @@ getListeVer(il)
     console.error(`"${il}" için hata: ${error}`);
   });
 
-
-getExcelVer(il)
-  .then(() => {
-    console.log(`"${il}" ilinin eczane verileri Excel olarak kaydedildi.`);
-  })
-  .catch((error) => {
-    console.error(`"${il}" için hata: ${error}`);
-  });
-
-
 ```
 
 ## Eczane verilerini almanın basit yolu:
@@ -124,17 +116,6 @@ getJsonVer(il)
 getListeVer(il)
   .then(() => {
     console.log(`"${il}" ilinin eczane verileri metin olarak kaydedildi.`);
-  })
-  .catch((error) => {
-    console.error(`"${il}" için hata: ${error}`);
-  });
-```
-
-
-```javascript
-getExcelVer(il)
-  .then(() => {
-    console.log(`"${il}" ilinin eczane verileri Excel olarak kaydedildi.`);
   })
   .catch((error) => {
     console.error(`"${il}" için hata: ${error}`);
